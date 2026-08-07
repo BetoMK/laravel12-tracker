@@ -1,0 +1,84 @@
+{
+    "name": "betomk/laravel12-tracker",
+    "description": "A Laravel Visitor Tracker for Laravel 12 - Tracking-only fork of deivide/laravel-tracker (pragmarx/tracker). Stats panel / Datatables removed.",
+    "keywords": [
+        "tracker",
+        "tracking",
+        "visitor",
+        "logging",
+        "user agent",
+        "mobile detection",
+        "laravel",
+        "pragmarx"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Antonio Carlos Ribeiro",
+            "email": "acr@antoniocarlosribeiro.com",
+            "role": "Original Creator (pragmarx/tracker)"
+        },
+        {
+            "name": "Deivide",
+            "homepage": "https://github.com/deivide",
+            "role": "Maintainer (Fork)"
+        },
+        {
+            "name": "BetoMK",
+            "homepage": "https://github.com/BetoMK",
+            "role": "Laravel 12 Maintainer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "doctrine/dbal": "^3.1|^4.0",
+        "laravel/framework": "^10|^11|^12",
+        "ramsey/uuid": "^3 || ^4",
+        "jenssegers/agent": "~2.1",
+        "ua-parser/uap-php": "~3.4",
+        "snowplow/referer-parser": "~0.1",
+        "jaybizzle/crawler-detect": "~1.0",
+        "psr/log": "^1.1 || ^2.0 || ^3.0",
+        "betomk/laravel12-support": "^1.0"
+    },
+    "suggest": {
+        "geoip/geoip": "~1.14",
+        "geoip2/geoip2": "~2.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^10.0|^11.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PragmaRX\\Tracker\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PragmaRX\\Tracker\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0.x-dev"
+        },
+        "laravel": {
+            "providers": [
+                "PragmaRX\\Tracker\\Vendor\\Laravel\\ServiceProvider"
+            ],
+            "aliases": {
+                "Tracker": "PragmaRX\\Tracker\\Vendor\\Laravel\\Facade"
+            }
+        }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/BetoMK/laravel12-support"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
