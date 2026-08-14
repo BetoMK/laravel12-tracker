@@ -73,12 +73,6 @@
             }
         }
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/BetoMK/laravel12-support"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true
 }

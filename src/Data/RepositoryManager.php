@@ -31,6 +31,7 @@ use PragmaRX\Tracker\Data\Repositories\SqlQueryLog;
 use PragmaRX\Tracker\Data\Repositories\SystemClass;
 use PragmaRX\Tracker\Services\Authentication;
 use PragmaRX\Tracker\Support\CrawlerDetector;
+use PragmaRX\Tracker\Support\DeviceAttributes;
 use PragmaRX\Tracker\Support\GeoIp\GeoIp;
 use PragmaRX\Tracker\Support\LanguageDetect;
 use PragmaRX\Tracker\Support\MobileDetect;
@@ -117,7 +118,10 @@ class RepositoryManager implements RepositoryManagerInterface
 
     public function findOrCreateDevice($data)
     {
-        return $this->deviceRepository->findOrCreate($data, ['kind', 'model', 'platform', 'platform_version']);
+        return $this->deviceRepository->findOrCreate(
+            DeviceAttributes::normalize($data),
+            ['kind', 'model', 'platform', 'platform_version']
+        );
     }
 
     public function findOrCreateLanguage($data)

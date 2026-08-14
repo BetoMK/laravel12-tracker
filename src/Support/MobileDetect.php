@@ -13,12 +13,12 @@ class MobileDetect extends Agent
      */
     public function detectDevice()
     {
-        return [
+        return DeviceAttributes::normalize([
             'kind'      => $this->getDeviceKind(),
             'model'     => $this->device(),
             'is_mobile' => $this->isMobile(),
             'is_robot'  => $this->isRobot(),
-        ];
+        ]);
     }
 
     /**

@@ -160,8 +160,8 @@ abstract class Repository implements RepositoryInterface
     {
         $code = (string) $e->errorInfo[1] ?? '';
 
-        // MySQL: 1062, PostgreSQL: 23505, SQLite: 19
-        return in_array($code, ['1062', '23505', '19']);
+        // MySQL: 1062, PostgreSQL: 23505, SQLite: 19, SQL Server: 2627 / 2601
+        return in_array($code, ['1062', '23505', '19', '2627', '2601']);
     }
 
     public function getModel()

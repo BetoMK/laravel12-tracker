@@ -12,39 +12,14 @@ Namespace remains `PragmaRX\Tracker` for drop-in compatibility.
 - Laravel `^10|^11|^12`
 - Optional: `geoip/geoip` or `geoip2/geoip2` for GeoIP
 
-## Install from GitHub (Composer VCS)
-
-Both repositories are **public**:
-
-- https://github.com/BetoMK/laravel12-tracker
-- https://github.com/BetoMK/laravel12-support
-
-In your Laravel app `composer.json`:
-
-```json
-{
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/BetoMK/laravel12-tracker"
-    },
-    {
-      "type": "vcs",
-      "url": "https://github.com/BetoMK/laravel12-support"
-    }
-  ],
-  "require": {
-    "betomk/laravel12-tracker": "^1.0"
-  }
-}
-```
-
-Then:
+## Install
 
 ```bash
-composer update betomk/laravel12-tracker
+composer require betomk/laravel12-tracker
 php artisan vendor:publish --provider="PragmaRX\Tracker\Vendor\Laravel\ServiceProvider"
 ```
+
+`betomk/laravel12-support` is pulled in automatically from Packagist.
 
 Configure a `tracker` database connection if you use a separate DB, then:
 
