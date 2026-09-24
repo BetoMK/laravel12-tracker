@@ -57,11 +57,28 @@ class Tracker
 
     public function checkCurrentUser()
     {
-        if (!$this->sessionData['user_id'] && $user_id = $this->getUserId()) {
+        if (!$this->booted) {
+            $this->boot();
+        }
+
+        if (empty($this->sessionData)) {
+            return false;
+        }
+
+        if (!empty($this->sessionData['user_id'])) {
             return true;
         }
 
-        return false;
+        $userId = $this->getUserId();
+
+        if (!$userId) {
+            return false;
+        }
+
+        $this->sessionData['user_id'] = $userId;
+        $this->sessionData = $this->dataRepositoryManager->updateSessionData($this->sessionData);
+
+        return true;
     }
 
     public function currentSession()

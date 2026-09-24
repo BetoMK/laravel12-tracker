@@ -528,15 +528,25 @@ class ServiceProvider extends PragmaRXServiceProvider
                 $all_bindings_resolved =
                     (! in_array(false, $checked_bindings, true)) ?: false;
 
-                if ($me->tracker &&
+                if ($me->getConfig('log_users') &&
                     ! $me->userChecked &&
-                    $me->getConfig('log_users') &&
                     $all_bindings_resolved
                 ) {
                     $me->userChecked = $me->getTracker()->checkCurrentUser();
                 }
             }
         );
+
+        // RouteMatched corre antes del middleware de sesión/auth.
+        // Al terminar el request el usuario ya está resuelto y user_id
+        // se puede guardar en la fila creada (o se puede crear la sesión).
+        $this->app->terminating(function () use ($me) {
+            if (! $me->getConfig('enabled') || ! $me->getConfig('log_users')) {
+                return;
+            }
+
+            $me->getTracker()->checkCurrentUser();
+        });
     }
 
     /**

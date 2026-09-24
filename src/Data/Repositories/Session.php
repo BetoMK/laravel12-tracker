@@ -76,10 +76,14 @@ class Session extends Repository
     {
         $data = $this->getSessionData();
 
-        if (isset($data['user_id'])) {
-            if ($data['user_id'] !== $this->sessionInfo['user_id']) {
-                return false;
-            }
+        $storedUserId = is_array($data) ? ($data['user_id'] ?? null) : null;
+        $currentUserId = $this->sessionInfo['user_id'] ?? null;
+
+        // isset() es false cuando user_id es null, así que un login
+        // posterior no se detectaba y la fila se quedaba sin usuario.
+        // No pisar un user_id ya guardado si Auth todavía no está listo.
+        if ($currentUserId && $storedUserId !== $currentUserId) {
+            return false;
         }
 
         if (isset($data['client_ip'])) {
@@ -121,7 +125,7 @@ class Session extends Repository
             return false;
         }
 
-        if (!$this->getSessionData('uuid') == $this->getSystemSessionId()) {
+        if ($this->getSessionData('uuid') !== $this->getSystemSessionId()) {
             return false;
         }
 
@@ -143,7 +147,14 @@ class Session extends Repository
             if ($key === 'user_agent') {
                 continue;
             }
-            if ($sessionData[$key] !== $value) {
+
+            if ($key === 'user_id' && empty($value)) {
+                continue;
+            }
+
+            $current = is_array($sessionData) ? ($sessionData[$key] ?? null) : null;
+
+            if ($current !== $value) {
                 if (!$model) {
                     $model = $this->currentModel ?: $this->find($this->sessionInfo['id']);
                 }
@@ -291,15 +302,51 @@ class Session extends Repository
 
     public function updateSessionData($data)
     {
-        $session = $this->checkIfUserChanged($data, $this->find($this->getSessionData('id')));
+        $id = $data['id'] ?? $this->getSessionData('id');
+
+        if (!$id) {
+            return $data;
+        }
+
+        $model = $this->find($id);
+
+        if (!$model) {
+            return $data;
+        }
+
+        $session = $this->checkIfUserChanged($data, $model);
 
         foreach ($session->getAttributes() as $name => $value) {
-            if (isset($data[$name]) && $name !== 'id' && $name !== 'uuid') {
-                $session->{$name} = $data[$name];
+            if (!array_key_exists($name, $data) || $name === 'id' || $name === 'uuid') {
+                continue;
             }
+
+            if ($name === 'user_id' && empty($data[$name])) {
+                continue;
+            }
+
+            $session->{$name} = $data[$name];
+        }
+
+        if (!empty($data['user_id']) && empty($session->user_id)) {
+            $session->user_id = $data['user_id'];
         }
 
         $session->save();
+
+        $stored = $this->getSessionData() ?: [];
+        $stored['id'] = $session->id;
+        $stored['user_id'] = $session->user_id;
+        $this->putSessionData(array_merge($stored, array_filter(
+            $data,
+            function ($value, $key) {
+                return $key !== 'user_id' || !empty($value);
+            },
+            ARRAY_FILTER_USE_BOTH
+        )));
+
+        $data['id'] = $session->id;
+        $data['user_id'] = $session->user_id;
 
         return $data;
     }

@@ -66,8 +66,18 @@ class Authentication
 
     public function getCurrentUserId()
     {
-        if ($this->check()) {
-            return $this->user()->{$this->config->get('authenticated_user_id_column')};
+        if (!$this->check()) {
+            return null;
         }
+
+        $user = $this->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        $column = $this->config->get('authenticated_user_id_column');
+
+        return $user->{$column} ?? null;
     }
 }
