@@ -519,29 +519,17 @@ class ServiceProvider extends PragmaRXServiceProvider
         $this->app['events']->listen(
             'Illuminate\Routing\Events\RouteMatched',
             function ($object = null) use ($me) {
-                $bindings = $me->getConfig('authentication_ioc_binding');
-
-                $checked_bindings = array_map(function ($abstract) use ($me) {
-                    return $me->app->resolved($abstract);
-                }, $bindings);
-
-                $all_bindings_resolved =
-                    (! in_array(false, $checked_bindings, true)) ?: false;
-
-                if ($me->getConfig('log_users') &&
-                    ! $me->userChecked &&
-                    $all_bindings_resolved
-                ) {
+                if ($me->getConfig('enabled') && ! $me->userChecked) {
                     $me->userChecked = $me->getTracker()->checkCurrentUser();
                 }
             }
         );
 
         // RouteMatched corre antes del middleware de sesión/auth.
-        // Al terminar el request el usuario ya está resuelto y user_id
-        // se puede guardar en la fila creada (o se puede crear la sesión).
+        // Al terminar el request el usuario ya está resuelto: si user_id
+        // quedó null, se vuelve a leer y se sobrescribe en la fila.
         $this->app->terminating(function () use ($me) {
-            if (! $me->getConfig('enabled') || ! $me->getConfig('log_users')) {
+            if (! $me->getConfig('enabled')) {
                 return;
             }
 

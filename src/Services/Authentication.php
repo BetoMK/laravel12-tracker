@@ -35,13 +35,9 @@ class Authentication
 
         foreach ($this->getAuthentication() as $auth) {
             foreach ($guards as $guard) {
-                // Call guard() if not null
-                if ($guard && $guard != 'null') {
-                    $auth = $auth->guard($guard);
-                }
-            }
-            if (is_callable([$auth, $method], true, $callable_name)) {
-                if ($data = $auth->$method()) {
+                $manager = ($guard && $guard != 'null') ? $auth->guard($guard) : $auth;
+
+                if (is_callable([$manager, $method]) && $data = $manager->$method()) {
                     return $data;
                 }
             }
@@ -52,6 +48,10 @@ class Authentication
 
     private function getAuthentication()
     {
+        if ($this->authentication) {
+            return $this->authentication;
+        }
+
         foreach ((array) $this->config->get('authentication_ioc_binding') as $binding) {
             $this->authentication[] = $this->app->make($binding);
         }

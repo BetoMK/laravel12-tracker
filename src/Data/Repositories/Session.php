@@ -56,8 +56,27 @@ class Session extends Repository
     {
         $this->generateSession($sessinInfo);
 
+        $this->fillMissingUserId();
+
         if ($this->sessionIsKnownOrCreateSession()) {
             $this->ensureSessionDataIsComplete();
+        }
+    }
+
+    private function fillMissingUserId()
+    {
+        if (!empty($this->sessionInfo['user_id'])) {
+            return;
+        }
+
+        if (!app()->bound('tracker.authentication')) {
+            return;
+        }
+
+        $userId = app('tracker.authentication')->getCurrentUserId();
+
+        if ($userId) {
+            $this->sessionInfo['user_id'] = $userId;
         }
     }
 
@@ -328,8 +347,16 @@ class Session extends Repository
             $session->{$name} = $data[$name];
         }
 
-        if (!empty($data['user_id']) && empty($session->user_id)) {
-            $session->user_id = $data['user_id'];
+        if (empty($session->user_id)) {
+            $userId = $data['user_id'] ?? null;
+
+            if (!$userId && app()->bound('tracker.authentication')) {
+                $userId = app('tracker.authentication')->getCurrentUserId();
+            }
+
+            if ($userId) {
+                $session->user_id = $userId;
+            }
         }
 
         $session->save();

@@ -6,6 +6,25 @@ class Session extends Base
 {
     protected $table = 'tracker_sessions';
 
+    protected static function booted()
+    {
+        static::saving(function (self $session) {
+            if (!empty($session->user_id)) {
+                return;
+            }
+
+            if (!app()->bound('tracker.authentication')) {
+                return;
+            }
+
+            $userId = app('tracker.authentication')->getCurrentUserId();
+
+            if ($userId) {
+                $session->user_id = $userId;
+            }
+        });
+    }
+
     protected $fillable = [
         'uuid',
         'user_id',

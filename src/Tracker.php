@@ -69,7 +69,7 @@ class Tracker
             return true;
         }
 
-        $userId = $this->getUserId();
+        $userId = $this->dataRepositoryManager->getCurrentUserId();
 
         if (!$userId) {
             return false;
@@ -246,10 +246,41 @@ class Tracker
 
     public function getSessionId($updateLastActivity = false)
     {
-        return $this->dataRepositoryManager->getSessionId(
+        $id = $this->dataRepositoryManager->getSessionId(
             $this->makeSessionData(),
             $updateLastActivity
         );
+
+        if (is_array($this->sessionData)) {
+            $this->sessionData['id'] = $id;
+        }
+
+        return $this->refreshUserIdOnSession();
+    }
+
+    /**
+     * Si la sesión se creó sin usuario, vuelve a leer Auth y sobrescribe user_id.
+     */
+    public function refreshUserIdOnSession()
+    {
+        if (empty($this->sessionData['id'])) {
+            return $this->sessionData['id'] ?? null;
+        }
+
+        if (!empty($this->sessionData['user_id'])) {
+            return $this->sessionData['id'];
+        }
+
+        $userId = $this->dataRepositoryManager->getCurrentUserId();
+
+        if (!$userId) {
+            return $this->sessionData['id'];
+        }
+
+        $this->sessionData['user_id'] = $userId;
+        $this->sessionData = $this->dataRepositoryManager->updateSessionData($this->sessionData);
+
+        return $this->sessionData['id'];
     }
 
     public function getUserId()
